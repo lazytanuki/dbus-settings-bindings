@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: MPL-2.0
 
 pub mod bluetooth;
+pub mod modem;
 pub mod tun;
 pub mod wired;
 pub mod wireguard;
@@ -13,8 +14,9 @@ use crate::{
 		active_connection::ActiveConnectionProxy,
 		config::{ip4::Ipv4ConfigProxy, ip6::Ipv6ConfigProxy},
 		device::{
-			bluetooth::BluetoothDeviceProxy, tun::TunDeviceProxy, wired::WiredDeviceProxy,
-			wireguard::WireGuardDeviceProxy, wireless::WirelessDeviceProxy, DeviceProxy,
+			bluetooth::BluetoothDeviceProxy, modem::ModemDeviceProxy, tun::TunDeviceProxy,
+			wired::WiredDeviceProxy, wireguard::WireGuardDeviceProxy,
+			wireless::WirelessDeviceProxy, DeviceProxy, GenericDeviceProxy,
 		},
 		enums::{DeviceCapabilities, DeviceState, DeviceType},
 	},
@@ -96,6 +98,13 @@ impl<'a> Device<'a> {
 					.await?
 					.into(),
 			))),
+			DeviceType::Modem => Ok(Some(SpecificDevice::Modem(
+				ModemDeviceProxy::builder(self.0.inner().connection())
+					.path(self.0.inner().path())?
+					.build()
+					.await?
+					.into(),
+			))),
 			_ => Ok(None),
 		}
 	}
@@ -145,6 +154,7 @@ pub enum SpecificDevice<'a> {
 	Wireless(wireless::WirelessDevice<'a>),
 	TunTap(tun::TunDevice<'a>),
 	WireGuard(wireguard::WireGuardDevice<'a>),
+	Modem(modem::ModemDevice<'a>),
 }
 
 impl<'a> SpecificDevice<'a> {

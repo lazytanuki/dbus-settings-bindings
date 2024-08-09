@@ -21,6 +21,7 @@
 //! …consequently `zbus-xmlgen` did not generate code for the above interfaces.
 
 pub mod bluetooth;
+pub mod modem;
 pub mod tun;
 pub mod wired;
 pub mod wireguard;
